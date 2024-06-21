@@ -7,8 +7,8 @@ const FormData = require('form-data');
 const cors = require('cors');
 const app = express();
 const upload = multer({ dest: 'uploads/' });
-app.use(cors());
 
+app.use(cors());
 
 // Middleware
 app.use(express.static('public'));
