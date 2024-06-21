@@ -27,7 +27,7 @@ app.use((req, res, next) => {
 
 // Routes
 app.post('/upload', upload.single('image'), async (req, res) => {
-  const apiKey = 'K88040098088957'; // Replace with your OCR.space API key
+  const apiKey = 'K83440941088957'; // Replace with your OCR.space API key
 
   try {
     const formData = new FormData();
