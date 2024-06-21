@@ -1,12 +1,11 @@
 const express = require('express');
 const multer = require('multer');
 const axios = require('axios');
-const path = require('path');
-const fs = require('fs');
 const FormData = require('form-data');
 const cors = require('cors');
+
 const app = express();
-const upload = multer({ dest: 'uploads/' });
+const upload = multer();
 
 app.use(cors());
 
@@ -28,14 +27,18 @@ app.use((req, res, next) => {
 
 // Routes
 app.post('/upload', upload.single('image'), async (req, res) => {
-  const filePath = path.join(__dirname, req.file.path);
   const apiKey = 'K88040098088957'; // Replace with your OCR.space API key
 
   try {
     const formData = new FormData();
-    formData.append('file', fs.createReadStream(filePath));
+    formData.append('file', req.file.buffer, {
+      filename: req.file.originalname,
+      contentType: req.file.mimetype,
+    });
     formData.append('apikey', apiKey);
-    formData.append('filetype', path.extname(req.file.originalname).substring(1)); // Set file type
+    formData.append('filetype', req.file.mimetype.split('/')[1]); // Set file type
+
+    console.log('Sending request to OCR API...');
 
     const response = await axios.post('https://api.ocr.space/parse/image', formData, {
       headers: {
@@ -54,11 +57,6 @@ app.post('/upload', upload.single('image'), async (req, res) => {
   } catch (error) {
     console.error('Error processing image:', error.message);
     res.status(500).json({ message: 'Error processing the image', error: error.message });
-  } finally {
-    // Delete the uploaded file after processing
-    if (fs.existsSync(filePath)) {
-      fs.unlinkSync(filePath);
-    }
   }
 });
 
