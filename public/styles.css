@@ -1,0 +1,178 @@
+/* General styles */
+body {
+  font-family: 'Roboto', sans-serif;
+  background-color: #f4f4f9;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+
+/* Container styles */
+.app-container {
+  padding: 40px;
+  max-width: 800px;
+  width: 100%;
+  text-align: center;
+  animation: fadeIn 1s ease-in-out;
+  margin-top: 70px; 
+}
+
+/* Header styles */
+.app-container h1 {
+  font-size: 2.3rem;
+  color: #0056b3;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.app-container h1 i {
+  margin-right: 18px;
+  font-size: 2.3rem;
+}
+
+header p {
+  font-size: 1.1rem;
+  color: #777;
+  margin-bottom: 30px;
+}
+
+/* Form styles */
+.upload-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.upload-form input[type="file"] {
+  display: none;
+}
+
+.upload-label {
+  background-color: #007bff;
+  color: #fff;
+  padding: 12px 25px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+}
+
+.upload-label i {
+  margin-right: 8px;
+}
+
+.upload-label:hover {
+  background-color: #0056b3;
+}
+
+.upload-button {
+  background-color: #28a745;
+  color: #fff;
+  padding: 12px 25px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  display: flex;
+  align-items: center;
+}
+
+.upload-button i {
+  margin-right: 8px;
+}
+
+.upload-button:hover {
+  background-color: #218838;
+}
+
+/* Phone numbers list styles */
+.phone-numbers-container {
+  text-align: left;
+  margin-bottom: 70px;
+}
+
+.phone-numbers-container h2 {
+  font-size: 1.8rem;
+  color: #333;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+#phone-numbers {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+#phone-numbers li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  border-bottom: 1px solid #ddd;
+  animation: slideIn 0.5s ease-in-out;
+}
+
+#phone-numbers li button {
+  padding: 8px 15px;
+  background-color: #ffc107;
+  color: #333;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  display: flex;
+  align-items: center;
+}
+
+#phone-numbers li button i {
+  margin-right: 8px;
+}
+
+#phone-numbers li button:hover {
+  background-color: #e0a800;
+}
+
+footer {
+  background-color: #343a40;
+  color: #fff;
+  padding: 18px 0;
+  text-align: center;
+  width: 100%;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+}
+
+footer p {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
