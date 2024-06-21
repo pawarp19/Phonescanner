@@ -4,10 +4,11 @@ const axios = require('axios');
 const path = require('path');
 const fs = require('fs');
 const FormData = require('form-data');
-app.use(cors());
-
+const cors = require('cors');
 const app = express();
 const upload = multer({ dest: 'uploads/' });
+app.use(cors());
+
 
 // Middleware
 app.use(express.static('public'));
