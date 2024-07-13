@@ -39,7 +39,7 @@ document.getElementById('upload-form').addEventListener('submit', async (e) => {
         document.getElementById('loading-spinner').style.display = 'block';
 
         try {
-          const response = await fetch('http://localhost:3000/upload', {
+          const response = await fetch('https://phonescanner-4p8y.onrender.com/upload', {
             method: 'POST',
             body: formData
           });
@@ -96,7 +96,7 @@ function validatePhoneNumber(phoneNumber) {
 async function makeCall(phoneNumber, listItem) {
   const data = { phoneNumbers: [phoneNumber] };
   try {
-    const response = await fetch('http://localhost:3000/call', {
+    const response = await fetch('https://phonescanner-4p8y.onrender.com/call', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
