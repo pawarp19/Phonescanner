@@ -3,13 +3,11 @@ body {
   font-family: 'Roboto', sans-serif;
   background-color: #f4f4f9;
   margin: 0;
-  padding: 0;
+  padding-top: 70px; /* Ensures content is not hidden under the navbar */
   display: flex;
-  justify-content: center;
-  align-items: center;
+  flex-direction: column;
   min-height: 100vh;
 }
-
 
 /* Container styles */
 .app-container {
@@ -17,8 +15,10 @@ body {
   max-width: 800px;
   width: 100%;
   text-align: center;
+  border-radius: 10px;
   animation: fadeIn 1s ease-in-out;
-  margin-top: 70px; 
+  margin: 20px auto; /* Centers the container horizontally */
+  flex: 1;
 }
 
 /* Header styles */
@@ -94,10 +94,17 @@ header p {
   background-color: #218838;
 }
 
+#loading-spinner {
+  display: none;
+  margin: 0 auto;
+  margin-top: 20px;
+}
+
+
 /* Phone numbers list styles */
 .phone-numbers-container {
   text-align: left;
-  margin-bottom: 70px;
+  margin-bottom: 20px;
 }
 
 .phone-numbers-container h2 {
@@ -142,15 +149,17 @@ header p {
   background-color: #e0a800;
 }
 
+#phone-numbers li.called {
+  background-color: #d4edda;
+}
+
 footer {
   background-color: #343a40;
   color: #fff;
   padding: 18px 0;
   text-align: center;
   width: 100%;
-  position: fixed;
-  bottom: 0;
-  left: 0;
+  margin-top: auto; /* Ensures footer is pushed to the bottom */
 }
 
 footer p {
