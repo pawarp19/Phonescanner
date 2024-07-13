@@ -71,7 +71,7 @@ document.getElementById('upload-form').addEventListener('submit', async (e) => {
                 phoneNumbersList.appendChild(listItem);
               });
             } else {
-              phoneNumbersList.innerHTML = '<li>No valid 10-digit phone numbers found</li>';
+              phoneNumbersList.innerHTML = '<li>No valid 10 or 12-digit phone numbers found</li>';
             }
           } else {
             phoneNumbersList.innerHTML = '<li>No phone numbers found</li>';
@@ -88,7 +88,8 @@ document.getElementById('upload-form').addEventListener('submit', async (e) => {
 });
 
 function validatePhoneNumber(phoneNumber) {
-  const phoneNumberPattern = /^\d{10}$/;
+  // Allow both 10-digit and 12-digit phone numbers
+  const phoneNumberPattern = /^\d{10}$|^\d{12}$/;
   return phoneNumberPattern.test(phoneNumber);
 }
 
