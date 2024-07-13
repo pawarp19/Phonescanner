@@ -25,6 +25,11 @@ app.use((req, res, next) => {
 });
 
 app.post('/upload', upload.single('image'), async (req, res) => {
+  if (!req.file) {
+    console.error('No file uploaded');
+    return res.status(400).json({ message: 'No file uploaded' });
+  }
+
   const apiKey = process.env.OCR_API_KEY; // Replace with your OCR.space API key
 
   try {

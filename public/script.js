@@ -8,6 +8,10 @@ document.getElementById('upload-form').addEventListener('submit', async (e) => {
 
   const fileInput = document.getElementById('image');
   const file = fileInput.files[0];
+  if (!file) {
+    console.error('No file selected');
+    return;
+  }
   const canvas = document.createElement('canvas');
   const img = document.createElement('img');
 
