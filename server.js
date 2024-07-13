@@ -63,7 +63,7 @@ app.post('/call', async (req, res) => {
   const apiId = process.env.BULKSMS_API_ID;
   const apiPassword = process.env.BULKSMS_API_PASSWORD;
   const voiceType = '6';
-  const voiceMediasId = '6009';
+  const voiceMediasId = '6007';
   const scheduled = '0';
 
   try {
