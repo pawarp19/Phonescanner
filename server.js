@@ -1,15 +1,19 @@
 const express = require('express');
 const multer = require('multer');
-const axios = require('axios');
-const FormData = require('form-data');
+const { ImageAnnotatorClient } = require('@google-cloud/vision');
+const path = require('path');
 const cors = require('cors');
-const app = express();
+const axios=require('axios');
 require('dotenv').config();
 
+const app = express();
 const upload = multer({ storage: multer.memoryStorage() });
 
-app.use(cors());
+const visionClient = new ImageAnnotatorClient({
+  keyFilename: path.join(__dirname, 'googlecloudkey.json') // Ensure this path is correct
+});
 
+app.use(cors());
 app.use(express.static('public'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -24,34 +28,41 @@ app.use((req, res, next) => {
   next();
 });
 
+const extractPhoneNumbers = (text) => {
+  const allNumbers = text.match(/\d+/g) || [];
+  // Filter to get only 10 or 12 digit numbers
+  return allNumbers.filter(number => number.length === 10 || number.length === 12);
+};
+
+const googleVisionApi = async (buffer) => {
+  try {
+    const [result] = await visionClient.textDetection({ image: { content: buffer } });
+    const detections = result.textAnnotations;
+    if (detections.length > 0) {
+      const parsedText = detections[0].description;
+      console.log('Extracted Text:', parsedText); // Log the extracted text for debugging
+      return extractPhoneNumbers(parsedText);
+    } else {
+      throw new Error('No text detected');
+    }
+  } catch (error) {
+    console.error('Error during text detection:', error.message);
+    throw error;
+  }
+};
+
 app.post('/upload', upload.single('image'), async (req, res) => {
   if (!req.file) {
     console.error('No file uploaded');
     return res.status(400).json({ message: 'No file uploaded' });
   }
 
-  const apiKey = process.env.OCR_API_KEY; // Replace with your OCR.space API key
-
   try {
-    const formData = new FormData();
-    formData.append('file', req.file.buffer, req.file.originalname);
-    formData.append('apikey', apiKey);
-    formData.append('filetype', req.file.mimetype.split('/')[1]); // Set file type
-
-    const response = await axios.post('https://api.ocr.space/parse/image', formData, {
-      headers: {
-        ...formData.getHeaders()
-      }
-    });
-
-    if (response.data && response.data.ParsedResults && response.data.ParsedResults[0]) {
-      const parsedText = response.data.ParsedResults[0].ParsedText;
-      const phoneNumbers = parsedText.match(/\+?\d+/g);
-      console.log('Extracted Phone Numbers:', phoneNumbers);
-      res.json({ phoneNumbers });
-    } else {
-      throw new Error('No valid response from OCR API');
+    let phoneNumbers = await googleVisionApi(req.file.buffer);
+    if (phoneNumbers.length === 0) {
+      throw new Error('No valid phone numbers found');
     }
+    res.json({ phoneNumbers });
   } catch (error) {
     console.error('Error processing image:', error.message);
     res.status(500).json({ message: 'Error processing the image', error: error.message });
