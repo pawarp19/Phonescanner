@@ -34,7 +34,7 @@ document.getElementById('upload-form').addEventListener('submit', async (e) => {
 
       const ctx = canvas.getContext('2d');
       ctx.filter = 'contrast(200%) grayscale(100%)';
-      ctx.drawImage(canvas, 0, 0, width, height);
+      ctx.drawImage(img, 0, 0, width, height);
 
       canvas.toBlob(async (blob) => {
         const formData = new FormData();
@@ -43,7 +43,7 @@ document.getElementById('upload-form').addEventListener('submit', async (e) => {
         document.getElementById('loading-spinner').style.display = 'block';
 
         try {
-          const response = await fetch('https://phonescanner-4p8y.onrender.com/upload', {
+          const response = await fetch('http://localhost:3000/upload', {
             method: 'POST',
             body: formData
           });
@@ -66,12 +66,6 @@ document.getElementById('upload-form').addEventListener('submit', async (e) => {
               validPhoneNumbers.forEach(phoneNumber => {
                 const listItem = document.createElement('li');
                 listItem.textContent = phoneNumber;
-
-                const callButton = document.createElement('button');
-                callButton.innerHTML = '<i class="fas fa-phone-alt"></i> Call';
-                callButton.addEventListener('click', () => makeCall(phoneNumber, listItem));
-
-                listItem.appendChild(callButton);
                 phoneNumbersList.appendChild(listItem);
               });
             } else {
@@ -97,27 +91,35 @@ function validatePhoneNumber(phoneNumber) {
   return phoneNumberPattern.test(phoneNumber);
 }
 
-async function makeCall(phoneNumber, listItem) {
-  const data = { phoneNumbers: [phoneNumber] };
+document.getElementById('schedule-button').addEventListener('click', async () => {
+  const date = document.getElementById('schedule-date').value;
+  const time = document.getElementById('schedule-time').value;
+
+  const phoneNumbers = Array.from(document.getElementById('phone-numbers').children).map(li => li.textContent);
+
+  if (phoneNumbers.length === 0) {
+    alert('No phone numbers to schedule');
+    return;
+  }
+
   try {
-    const response = await fetch('https://phonescanner-4p8y.onrender.com/call', {
+    const response = await fetch('http://localhost:3000/schedule', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify(data)
+      body: JSON.stringify({ phoneNumbers, date, time })
     });
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! Status: ${response.status}`);
-    }
-
     const result = await response.json();
-    alert(`Call status: ${result.message}`);
 
-    // Change the background color of the list item
-    listItem.style.backgroundColor = '#d4edda';
+    if (result.message === 'Call scheduled successfully') {
+      alert('Calls scheduled successfully');
+    } else {
+      alert('Failed to schedule calls: ' + result.message);
+    }
   } catch (error) {
-    console.error('Error:', error.message);
+    console.error('Error scheduling calls:', error.message);
+    alert('Failed to schedule calls. Please try again.');
   }
-}
+});

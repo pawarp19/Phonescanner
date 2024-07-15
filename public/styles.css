@@ -129,7 +129,7 @@ header p {
   animation: slideIn 0.5s ease-in-out;
 }
 
-#phone-numbers li button {
+/* #phone-numbers li button {
   padding: 8px 15px;
   background-color: #ffc107;
   color: #333;
@@ -139,9 +139,9 @@ header p {
   transition: background-color 0.3s ease;
   display: flex;
   align-items: center;
-}
+} */
 
-#phone-numbers li button i {
+/* #phone-numbers li button i {
   margin-right: 8px;
 }
 
@@ -151,7 +151,7 @@ header p {
 
 #phone-numbers li.called {
   background-color: #d4edda;
-}
+} */
 
 footer {
   background-color: #343a40;
@@ -185,3 +185,66 @@ footer p {
     transform: translateX(0);
   }
 }
+
+.schedule-container {
+  margin-top: 30px;
+  text-align: center;
+}
+
+.schedule-container h3 {
+  font-size: 1.8rem;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+#schedule-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+label {
+  font-size: 1rem;
+  color: #555;
+  margin-bottom: 5px;
+}
+
+.form-control {
+  width: 100%;
+  padding: 10px;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-sizing: border-box;
+}
+
+#schedule-button {
+  margin-top: 15px;
+  padding: 12px 30px;
+  font-size: 1rem;
+}
+/* Ensure navbar links are visible on mobile */
+.navbar-nav {
+  flex-direction: row; /* Align links horizontally */
+}
+
+.navbar-nav .nav-link {
+  padding: 0.5rem 1rem; /* Adjust padding for better touch target */
+}
+
+/* Center navbar links on mobile */
+@media (max-width: 991.98px) {
+  .navbar-nav {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .navbar-nav .nav-link {
+    padding: 1rem; /* Increase padding for better touch target */
+  }
+}
+
