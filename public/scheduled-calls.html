@@ -63,7 +63,7 @@
 
     async function fetchScheduledCalls() {
       try {
-        const response = await fetch('http://localhost:3000/scheduled-calls');
+        const response = await fetch('https://phonescanner-4p8y.onrender.com/scheduled-calls');
         const scheduledCalls = await response.json();
         displayScheduledCalls(scheduledCalls, currentPage, rowsPerPage);
         setupPagination(scheduledCalls, rowsPerPage);

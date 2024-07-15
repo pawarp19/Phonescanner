@@ -43,7 +43,7 @@ document.getElementById('upload-form').addEventListener('submit', async (e) => {
         document.getElementById('loading-spinner').style.display = 'block';
 
         try {
-          const response = await fetch('http://localhost:3000/upload', {
+          const response = await fetch('https://phonescanner-4p8y.onrender.com/upload', {
             method: 'POST',
             body: formData
           });
@@ -103,7 +103,7 @@ document.getElementById('schedule-button').addEventListener('click', async () =>
   }
 
   try {
-    const response = await fetch('http://localhost:3000/schedule', {
+    const response = await fetch('https://phonescanner-4p8y.onrender.com/schedule', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
