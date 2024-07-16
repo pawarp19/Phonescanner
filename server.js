@@ -11,8 +11,13 @@ require('dotenv').config();
 const app = express();
 const upload = multer({ storage: multer.memoryStorage() });
 
+if (process.env.GOOGLE_APPLICATION_CREDENTIALS) {
+  const buffer = Buffer.from(process.env.GOOGLE_APPLICATION_CREDENTIALS, 'base64');
+  fs.writeFileSync('/tmp/cloudkey2.json', buffer);
+}
+
 const visionClient = new ImageAnnotatorClient({
-  keyFilename: path.join(__dirname, 'cloudkey2.json')
+  keyFilename: '/tmp/cloudkey2.json'
 });
 
 app.use(cors());
