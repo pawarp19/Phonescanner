@@ -69,7 +69,7 @@ document.getElementById('upload-form').addEventListener('submit', async (e) => {
                 phoneNumbersList.appendChild(listItem);
               });
             } else {
-              phoneNumbersList.innerHTML = '<li>No valid 10 or 12-digit phone numbers found</li>';
+              phoneNumbersList.innerHTML = '<li>No valid 10-digit phone numbers found</li>';
             }
           } else {
             phoneNumbersList.innerHTML = '<li>No phone numbers found</li>';
@@ -86,8 +86,8 @@ document.getElementById('upload-form').addEventListener('submit', async (e) => {
 });
 
 function validatePhoneNumber(phoneNumber) {
-  // Allow both 10-digit and 12-digit phone numbers
-  const phoneNumberPattern = /^\d{10}$|^\d{12}$/;
+  // Allow only 10-digit phone numbers
+  const phoneNumberPattern = /^\d{10}$/;
   return phoneNumberPattern.test(phoneNumber);
 }
 
@@ -115,11 +115,31 @@ document.getElementById('schedule-button').addEventListener('click', async () =>
 
     if (result.message === 'Call scheduled successfully') {
       alert('Calls scheduled successfully');
-    } else {
-      alert('Failed to schedule calls: ' + result.message);
-    }
+    } 
   } catch (error) {
     console.error('Error scheduling calls:', error.message);
     alert('Failed to schedule calls. Please try again.');
-  }
+  }   
 });
+
+
+
+// Fetch and display Bulk SMS balance
+const fetchAndDisplayBalance = async () => {
+  try {
+    const response = await fetch('https://phonescanner-4p8y.onrender.com/api/balance');
+    const data = await response.json();
+
+    if (data.balance !== undefined) {
+      document.getElementById('balance-amount').textContent = data.balance;
+    } else {
+      throw new Error('Balance not available');
+    }
+  } catch (error) {
+    console.error('Error fetching balance:', error.message);
+    document.getElementById('balance-amount').textContent = 'N/A';
+  }
+};
+
+// Call function to fetch and display balance on page load
+fetchAndDisplayBalance();

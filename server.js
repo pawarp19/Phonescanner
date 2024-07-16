@@ -12,7 +12,7 @@ const app = express();
 const upload = multer({ storage: multer.memoryStorage() });
 
 const visionClient = new ImageAnnotatorClient({
-  keyFilename: path.join(__dirname, 'googlecloudkey.json')
+  keyFilename: path.join(__dirname, 'cloudkey.json')
 });
 
 app.use(cors());
@@ -62,22 +62,18 @@ const googleVisionApi = async (buffer) => {
 
 // Function to extract phone numbers from text
 const extractPhoneNumbers = (text) => {
-  const allNumbers = text.match(/\d+/g) || [];
-  return allNumbers.filter(number => number.length === 10 || number.length === 12);
+  const allNumbers = text.match(/\d{10}/g) || [];
+  return allNumbers;
 };
 
 // Function to store scheduled calls in MongoDB
 const storeScheduledCalls = async (jobId, phoneNumbers, scheduledDateTime) => {
   const scheduledCallsCollection = db.collection('scheduledCalls');
 
-  const extractedPhoneNumbers = phoneNumbers.map(entry => {
-    return entry.split(' ')[0];
-  });
-
   try {
     await scheduledCallsCollection.insertOne({
       jobId,
-      phoneNumbers: extractedPhoneNumbers,
+      phoneNumbers,
       scheduledDateTime: new Date(scheduledDateTime),
       status: 'Pending',
       message: 'Not attempted yet'
@@ -90,12 +86,12 @@ const storeScheduledCalls = async (jobId, phoneNumbers, scheduledDateTime) => {
 };
 
 // Function to make a call using an external API
-const makeCall = async (phoneNumbers) => {
+const makeCall = async (phoneNumbers, scheduledDateTime) => {
   const apiId = process.env.BULKSMS_API_ID;
   const apiPassword = process.env.BULKSMS_API_PASSWORD;
-  const voiceType = '6';
-  const voiceMediasId = '6007';
-  const scheduled = '0';
+  const voiceType = '9'; // Use the appropriate voice type for your needs
+  const voiceMediasId = '6151'; // Replace with your actual voice media ID
+  const timezoneId = '53'; // Replace with the correct timezone ID
 
   const params = new URLSearchParams();
   params.append('api_id', apiId);
@@ -103,8 +99,9 @@ const makeCall = async (phoneNumbers) => {
   params.append('number', phoneNumbers.join(','));
   params.append('voice_type', voiceType);
   params.append('voice_medias_id', voiceMediasId);
-  params.append('scheduled', scheduled);
-  params.append('sender', 'HELLOVC');
+  params.append('scheduled', '1'); // Scheduled call
+  params.append('scheduled_datetime', Math.floor(scheduledDateTime.getTime() / 1000)); // Unix timestamp in seconds
+  params.append('timezone_id', timezoneId); // Timezone ID
 
   try {
     const response = await axios.post('https://www.bulksmsplans.com/api/send_voice_note', params);
@@ -147,10 +144,6 @@ app.post('/upload', upload.single('image'), async (req, res) => {
 app.post('/schedule', async (req, res) => {
   const { phoneNumbers, date, time } = req.body;
 
-  const cleanedPhoneNumbers = phoneNumbers.map(entry => {
-    return entry.split(' ')[0];
-  });
-
   const scheduledDateTime = new Date(`${date}T${time}:00`);
 
   if (scheduledDateTime <= new Date()) {
@@ -158,31 +151,34 @@ app.post('/schedule', async (req, res) => {
   }
 
   const cronTime = `${scheduledDateTime.getMinutes()} ${scheduledDateTime.getHours()} ${scheduledDateTime.getDate()} ${scheduledDateTime.getMonth() + 1} *`;
+  console.log(`Cron time: ${cronTime}`);
 
   const jobId = new ObjectId();
 
   try {
-    await storeScheduledCalls(jobId, cleanedPhoneNumbers, scheduledDateTime);
+    await storeScheduledCalls(jobId, phoneNumbers, scheduledDateTime);
   } catch (error) {
     console.error('Error storing scheduled calls:', error.message);
     return res.status(500).json({ message: 'Failed to store scheduled calls' });
   }
 
   cron.schedule(cronTime, async () => {
-    const result = await makeCall(cleanedPhoneNumbers);
-    const statusMessage = result.success ? 'Success' : 'Failed';
-
     try {
+      console.log(`Executing cron job at ${new Date().toISOString()}`);
+      const result = await makeCall(phoneNumbers, scheduledDateTime);
+      const statusMessage = result.success ? 'Success' : 'Failed';
+  
       const scheduledCallsCollection = db.collection('scheduledCalls');
       await scheduledCallsCollection.updateOne(
         { jobId },
         { $set: { status: statusMessage, message: `Scheduled call at ${scheduledDateTime.toString()}: ${statusMessage}` } }
       );
-      console.log(`Scheduled call at ${scheduledDateTime.toString()} for ${cleanedPhoneNumbers.length} phone numbers: ${statusMessage}`);
+      console.log(`Scheduled call at ${scheduledDateTime.toString()} for ${phoneNumbers.length} phone numbers: ${statusMessage}`);
     } catch (error) {
-      console.error('Error updating call status:', error.message);
+      console.error('Error executing cron job:', error.message);
     }
   });
+  
 
   res.json({ message: 'Call scheduled successfully', jobId: jobId.toHexString() });
 });
@@ -195,6 +191,42 @@ app.get('/scheduled-calls', async (req, res) => {
   } catch (error) {
     console.error('Error fetching scheduled calls:', error);
     res.status(500).json({ error: 'Failed to fetch scheduled calls' });
+  }
+});
+
+
+// Fetch Bulk SMS balance
+const fetchBulkSmsBalance = async () => {
+  try {
+    const response = await axios.post('https://www.bulksmsplans.com/api/check_balance', null, {
+      params: {
+        api_id: process.env.BULKSMS_API_ID,
+        api_password: process.env.BULKSMS_API_PASSWORD
+      }
+    });
+
+    console.log('Balance check response:', response.data);
+
+    if (response.data && response.data.code === 200 && response.data.data && response.data.data.length > 0) {
+      const balance = parseFloat(response.data.data[0].BalanceAmount);
+      return balance;
+    } else {
+      throw new Error('Unable to retrieve balance');
+    }
+  } catch (error) {
+    console.error('Error checking balance:', error.message);
+    throw error;
+  }
+};
+
+// Route to fetch and return Bulk SMS balance
+app.get('/api/balance', async (req, res) => {
+  try {
+    const balance = await fetchBulkSmsBalance();
+    res.json({ balance });
+  } catch (error) {
+    console.error('Failed to fetch balance:', error.message);
+    res.status(500).json({ error: 'Failed to fetch balance' });
   }
 });
 
