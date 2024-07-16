@@ -12,7 +12,7 @@ const app = express();
 const upload = multer({ storage: multer.memoryStorage() });
 
 const visionClient = new ImageAnnotatorClient({
-  keyFilename: path.join(__dirname, 'cloudkey.json')
+  keyFilename: path.join(__dirname, 'cloudkey2.json')
 });
 
 app.use(cors());
