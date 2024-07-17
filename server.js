@@ -148,14 +148,20 @@ app.post('/upload', upload.single('image'), async (req, res) => {
 app.post('/schedule', async (req, res) => {
   const { phoneNumbers, date, time, timezone } = req.body;
 
-  const scheduledDateTime = moment.tz(`${date} ${time}`, timezone).toDate();
-
+  // Combine date and time into a single string
+  const dateTimeString = `${date} ${time}`;
+  
+  // Convert the combined date-time string to a moment object with the provided timezone
+  const scheduledDateTime = moment.tz(dateTimeString, timezone).toDate();
+  
   if (scheduledDateTime <= new Date()) {
     return res.status(400).json({ message: 'Scheduled time must be in the future' });
   }
 
+  // Convert the scheduled time to UTC
   const utcScheduledDateTime = moment.tz(scheduledDateTime, 'UTC').toDate();
-  const cronTime = `${utcScheduledDateTime.getUTCMinutes()} ${utcScheduledDateTime.getUTCHours()} ${utcScheduledDateTime.getUTCDate()} ${utcScheduledDateTime.getUTCMonth() + 1} ? *`
+  const cronTime = `${utcScheduledDateTime.getUTCMinutes()} ${utcScheduledDateTime.getUTCHours()} ${utcScheduledDateTime.getUTCDate()} ${utcScheduledDateTime.getUTCMonth() + 1} ? *`;
+
   console.log(`Cron time: ${cronTime}`);
   console.log(`Scheduled time: ${scheduledDateTime.toLocaleString()}`);
 
@@ -173,7 +179,7 @@ app.post('/schedule', async (req, res) => {
       console.log(`Executing cron job at ${new Date().toISOString()}`);
       const result = await makeCall(phoneNumbers, scheduledDateTime);
       const statusMessage = result.success ? 'Success' : 'Failed';
-  
+
       const scheduledCallsCollection = db.collection('scheduledCalls');
       await scheduledCallsCollection.updateOne(
         { jobId },
@@ -184,7 +190,6 @@ app.post('/schedule', async (req, res) => {
       console.error('Error executing cron job:', error.message);
     }
   });
-  
 
   res.json({ message: 'Call scheduled successfully', jobId: jobId.toHexString() });
 });
