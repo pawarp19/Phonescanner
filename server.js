@@ -145,6 +145,7 @@ app.post('/upload', upload.single('image'), async (req, res) => {
 });
 
 // Route to schedule calls and store in MongoDB
+// Route to schedule calls and store in MongoDB
 app.post('/schedule', async (req, res) => {
   const { phoneNumbers, date, time, timezone } = req.body;
 
@@ -158,7 +159,10 @@ app.post('/schedule', async (req, res) => {
     return res.status(400).json({ message: 'Scheduled time must be in the future' });
   }
 
-  // Generate the cron time based on the local time
+  // Adjust scheduledDateTime by subtracting 5 hours and 30 minutes
+  scheduledDateTime.subtract(5, 'hours').subtract(30, 'minutes');
+
+  // Generate the cron time based on the adjusted local time
   const cronTime = `${scheduledDateTime.minutes()} ${scheduledDateTime.hours()} ${scheduledDateTime.date()} ${scheduledDateTime.month() + 1} *`;
 
   console.log(`Cron time: ${cronTime}`);
@@ -192,6 +196,7 @@ app.post('/schedule', async (req, res) => {
 
   res.json({ message: 'Call scheduled successfully', jobId: jobId.toHexString() });
 });
+
 
 // Route to fetch scheduled calls
 app.get('/scheduled-calls', async (req, res) => {
