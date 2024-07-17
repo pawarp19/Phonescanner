@@ -1,31 +1,28 @@
 const express = require('express');
 const multer = require('multer');
 const { ImageAnnotatorClient } = require('@google-cloud/vision');
-const path = require('path');
 const cors = require('cors');
 const axios = require('axios');
 const cron = require('node-cron');
 const { MongoClient, ObjectId } = require('mongodb');
+const moment = require('moment-timezone'); // Import moment-timezone
 require('dotenv').config();
-const fs = require('fs');
-const moment = require('moment-timezone'); // Add moment-timezone for time zone handling
 
 const app = express();
 const upload = multer({ storage: multer.memoryStorage() });
-
-if (process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON) {
-  const buffer = Buffer.from(process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON, 'base64');
-  fs.writeFileSync('/cloudwork.json', buffer);
-}
-
-const visionClient = new ImageAnnotatorClient({
-  keyFilename: '/cloudwork.json'
-});
 
 app.use(cors());
 app.use(express.static('public'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+const credentials = JSON.parse(Buffer.from(process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON, 'base64').toString('utf-8'));
+const visionClient = new ImageAnnotatorClient({
+  credentials: {
+    client_email: credentials.client_email,
+    private_key: credentials.private_key,
+  },
+});
 
 // MongoDB Connection URI
 const uri = process.env.MONGODB_URI;
@@ -201,7 +198,6 @@ app.get('/scheduled-calls', async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch scheduled calls' });
   }
 });
-
 
 // Fetch Bulk SMS balance
 const fetchBulkSmsBalance = async () => {
