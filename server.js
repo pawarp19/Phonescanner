@@ -5,7 +5,7 @@ const cors = require('cors');
 const axios = require('axios');
 const cron = require('node-cron');
 const { MongoClient, ObjectId } = require('mongodb');
-const moment = require('moment-timezone'); // Import moment-timezone
+const moment = require('moment-timezone');
 require('dotenv').config();
 
 const app = express();
@@ -160,7 +160,7 @@ app.post('/schedule', async (req, res) => {
 
   // Convert the scheduled time to UTC
   const utcScheduledDateTime = moment.tz(scheduledDateTime, 'UTC').toDate();
-  const cronTime = `${utcScheduledDateTime.getUTCMinutes()} ${utcScheduledDateTime.getUTCHours()} ${utcScheduledDateTime.getUTCDate()} ${utcScheduledDateTime.getUTCMonth() + 1} ? *`;
+  const cronTime = `${utcScheduledDateTime.getUTCMinutes()} ${utcScheduledDateTime.getUTCHours()} ${utcScheduledDateTime.getUTCDate()} ${utcScheduledDateTime.getUTCMonth() + 1} *`;
 
   console.log(`Cron time: ${cronTime}`);
   console.log(`Scheduled time: ${scheduledDateTime.toLocaleString()}`);
