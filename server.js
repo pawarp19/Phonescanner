@@ -12,13 +12,13 @@ const fs = require('fs');
 const app = express();
 const upload = multer({ storage: multer.memoryStorage() });
 
-if (process.env.GOOGLE_APPLICATION_CREDENTIALS) {
-  const buffer = Buffer.from(process.env.GOOGLE_APPLICATION_CREDENTIALS, 'base64');
-  fs.writeFileSync('/tmp/cloudkey2.json', buffer);
+if (process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON) {
+  const buffer = Buffer.from(process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON, 'base64');
+  fs.writeFileSync('/cloudwork.json', buffer);
 }
 
 const visionClient = new ImageAnnotatorClient({
-  keyFilename: '/tmp/cloudkey2.json'
+  keyFilename: '/cloudwork.json'
 });
 
 app.use(cors());

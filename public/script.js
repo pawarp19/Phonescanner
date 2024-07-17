@@ -118,7 +118,7 @@ document.getElementById('schedule-button').addEventListener('click', async () =>
     } 
   } catch (error) {
     console.error('Error scheduling calls:', error.message);
-    alert('Failed to schedule calls. Please try again.');
+    // alert('Failed to schedule calls. Please try again.');
   }   
 });
 
