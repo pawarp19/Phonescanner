@@ -4,24 +4,12 @@ body {
   padding-top: 56px; /* Ensure there's space for the fixed navbar */
 }
 
-.navbar-brand {
-  display: flex;
-  align-items: center;
-}
-
-.navbar-brand img {
-  margin-right: 10px;
-}
-
 .navbar-nav {
-  display: flex;
-  justify-content: center;
-  width: 100%;
+  flex-direction: row; /* Align links horizontally */
 }
 
-.nav-item {
-  flex: 1;
-  text-align: center;
+.navbar-nav .nav-link {
+  padding: 0.5rem 1rem; /* Adjust padding for better touch target */
 }
 
 .app-container {
@@ -46,6 +34,7 @@ body {
   background-color: transparent;
 }
 
+
 .table-striped tbody tr:nth-of-type(odd) {
   background-color: rgba(0, 0, 0, 0.05);
 }
@@ -63,8 +52,20 @@ body {
   border-color: #007bff;
 }
 
-@media (max-width: 768px) {
-  .app-container {
-    padding: 10px;
+  
+  @media (max-width: 768px) {
+    .app-container {
+      padding: 10px;
+    }
   }
-}
+  
+  @media (max-width: 991.98px) {
+    .navbar-nav {
+      flex-direction: column;
+      text-align: center;
+    }
+  
+    .navbar-nav .nav-link {
+      padding: 1rem; /* Increase padding for better touch target */
+    }
+  }
