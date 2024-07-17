@@ -1,27 +1,31 @@
 const express = require('express');
 const multer = require('multer');
 const { ImageAnnotatorClient } = require('@google-cloud/vision');
+const path = require('path');
 const cors = require('cors');
 const axios = require('axios');
 const cron = require('node-cron');
 const { MongoClient, ObjectId } = require('mongodb');
 require('dotenv').config();
+const fs = require('fs');
+const moment = require('moment-timezone'); // Add moment-timezone for time zone handling
 
 const app = express();
 const upload = multer({ storage: multer.memoryStorage() });
+
+if (process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON) {
+  const buffer = Buffer.from(process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON, 'base64');
+  fs.writeFileSync('/cloudwork.json', buffer);
+}
+
+const visionClient = new ImageAnnotatorClient({
+  keyFilename: '/cloudwork.json'
+});
 
 app.use(cors());
 app.use(express.static('public'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-const credentials = JSON.parse(Buffer.from(process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON, 'base64').toString('utf-8'));
-const visionClient = new ImageAnnotatorClient({
-  credentials: {
-    client_email: credentials.client_email,
-    private_key: credentials.private_key,
-  },
-});
 
 // MongoDB Connection URI
 const uri = process.env.MONGODB_URI;
@@ -145,9 +149,9 @@ app.post('/upload', upload.single('image'), async (req, res) => {
 
 // Route to schedule calls and store in MongoDB
 app.post('/schedule', async (req, res) => {
-  const { phoneNumbers, date, time } = req.body;
+  const { phoneNumbers, date, time, timezone } = req.body;
 
-  const scheduledDateTime = new Date(`${date}T${time}:00`);
+  const scheduledDateTime = moment.tz(`${date} ${time}`, timezone).toDate();
 
   if (scheduledDateTime <= new Date()) {
     return res.status(400).json({ message: 'Scheduled time must be in the future' });
@@ -155,6 +159,7 @@ app.post('/schedule', async (req, res) => {
 
   const cronTime = `${scheduledDateTime.getMinutes()} ${scheduledDateTime.getHours()} ${scheduledDateTime.getDate()} ${scheduledDateTime.getMonth() + 1} *`;
   console.log(`Cron time: ${cronTime}`);
+  console.log(`Scheduled time: ${scheduledDateTime.toLocaleString()}`);
 
   const jobId = new ObjectId();
 
@@ -196,6 +201,7 @@ app.get('/scheduled-calls', async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch scheduled calls' });
   }
 });
+
 
 // Fetch Bulk SMS balance
 const fetchBulkSmsBalance = async () => {
