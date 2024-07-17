@@ -159,37 +159,31 @@ app.post('/schedule', async (req, res) => {
   }
 
   // Convert the scheduled time to UTC
-  const utcScheduledDateTime = moment.tz(scheduledDateTime, 'UTC').toDate();
-  const cronTime = `${utcScheduledDateTime.getUTCMinutes()} ${utcScheduledDateTime.getUTCHours()} ${utcScheduledDateTime.getUTCDate()} ${utcScheduledDateTime.getUTCMonth() + 1} *`;
+  const utcScheduledDateTime = scheduledDateTime.utc(); // Convert to UTC
 
-  console.log(`Cron time: ${cronTime}`);
-  console.log(`Scheduled time: ${scheduledDateTime.toLocaleString()}`);
+// Extract components for cron scheduling
+const cronTime = `${utcScheduledDateTime.minute()} ${utcScheduledDateTime.hour()} ${utcScheduledDateTime.date()} ${utcScheduledDateTime.month() + 1} *`;
 
-  const jobId = new ObjectId();
+console.log(`Cron time: ${cronTime}`);
+console.log(`Scheduled time: ${scheduledDateTime.format()}`);
 
+// Schedule cron job using node-cron
+cron.schedule(cronTime, async () => {
   try {
-    await storeScheduledCalls(jobId, phoneNumbers, scheduledDateTime);
+    console.log(`Executing cron job at ${new Date().toISOString()}`);
+    const result = await makeCall(phoneNumbers, scheduledDateTime.toDate()); // Convert moment object back to Date
+    const statusMessage = result.success ? 'Success' : 'Failed';
+
+    const scheduledCallsCollection = db.collection('scheduledCalls');
+    await scheduledCallsCollection.updateOne(
+      { jobId },
+      { $set: { status: statusMessage, message: `Scheduled call at ${scheduledDateTime.format()}: ${statusMessage}` } }
+    );
+    console.log(`Scheduled call at ${scheduledDateTime.format()} for ${phoneNumbers.length} phone numbers: ${statusMessage}`);
   } catch (error) {
-    console.error('Error storing scheduled calls:', error.message);
-    return res.status(500).json({ message: 'Failed to store scheduled calls' });
+    console.error('Error executing cron job:', error.message);
   }
-
-  cron.schedule(cronTime, async () => {
-    try {
-      console.log(`Executing cron job at ${new Date().toISOString()}`);
-      const result = await makeCall(phoneNumbers, scheduledDateTime);
-      const statusMessage = result.success ? 'Success' : 'Failed';
-
-      const scheduledCallsCollection = db.collection('scheduledCalls');
-      await scheduledCallsCollection.updateOne(
-        { jobId },
-        { $set: { status: statusMessage, message: `Scheduled call at ${scheduledDateTime.toString()}: ${statusMessage}` } }
-      );
-      console.log(`Scheduled call at ${scheduledDateTime.toString()} for ${phoneNumbers.length} phone numbers: ${statusMessage}`);
-    } catch (error) {
-      console.error('Error executing cron job:', error.message);
-    }
-  });
+});
 
   res.json({ message: 'Call scheduled successfully', jobId: jobId.toHexString() });
 });
