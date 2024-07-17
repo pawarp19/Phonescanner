@@ -158,12 +158,11 @@ app.post('/schedule', async (req, res) => {
     return res.status(400).json({ message: 'Scheduled time must be in the future' });
   }
 
-  // Convert the scheduled time to UTC
-  const utcScheduledDateTime = scheduledDateTime.clone().utc();
-  const cronTime = `${utcScheduledDateTime.minutes()} ${utcScheduledDateTime.hours()} ${utcScheduledDateTime.date()} ${utcScheduledDateTime.month() + 1} *`;
+  // Generate the cron time based on the local time
+  const cronTime = `${scheduledDateTime.minutes()} ${scheduledDateTime.hours()} ${scheduledDateTime.date()} ${scheduledDateTime.month() + 1} *`;
 
   console.log(`Cron time: ${cronTime}`);
-  console.log(`Scheduled time: ${scheduledDateTime.toLocaleString()}`);
+  console.log(`Scheduled time: ${scheduledDateTime.toString()}`);
 
   const jobId = new ObjectId();
 
