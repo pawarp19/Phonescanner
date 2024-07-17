@@ -43,7 +43,6 @@
             <th scope="col" style="background-color: #1c86f7;color: white;">Scheduled Date and Time</th>
             <th scope="col" style="background-color: #1c86f7;color: white;">Remaining Time</th>
             <th scope="col" style="background-color: #1c86f7;color: white;">Status</th>
-            <th scope="col" style="background-color: #1c86f7;color: white;">Message</th>
           </tr>
         </thead>
         <tbody id="scheduled-calls-table"></tbody>
@@ -56,7 +55,6 @@
     </nav>
   </div> 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
-
 
   <script>
     let currentPage = 1;
@@ -90,7 +88,6 @@
             <td>${scheduledDateTime.toLocaleString()}</td>
             <td class="remaining-time" data-scheduled-time="${scheduledDateTime}"></td>
             <td>${call.status || 'Pending'}</td>
-            <td>${call.message || 'Not attempted yet'}</td>
           </tr>
         `);
 
