@@ -145,7 +145,6 @@ app.post('/upload', upload.single('image'), async (req, res) => {
 });
 
 // Route to schedule calls and store in MongoDB
-// Route to schedule calls and store in MongoDB
 app.post('/schedule', async (req, res) => {
   const { phoneNumbers, date, time, timezone } = req.body;
 
@@ -186,9 +185,9 @@ app.post('/schedule', async (req, res) => {
       const scheduledCallsCollection = db.collection('scheduledCalls');
       await scheduledCallsCollection.updateOne(
         { jobId },
-        { $set: { status: statusMessage, message: `Scheduled call at ${scheduledDateTime.toString()}: ${statusMessage}` } }
+        { $set: { status: statusMessage, message: `Scheduled call at ${moment.tz(scheduledDateTime, timezone).format('LLLL')}: ${statusMessage}` } }
       );
-      console.log(`Scheduled call at ${scheduledDateTime.toString()} for ${phoneNumbers.length} phone numbers: ${statusMessage}`);
+      console.log(`Scheduled call at ${moment.tz(scheduledDateTime, timezone).format('LLLL')} for ${phoneNumbers.length} phone numbers: ${statusMessage}`);
     } catch (error) {
       console.error('Error executing cron job:', error.message);
     }
@@ -196,7 +195,6 @@ app.post('/schedule', async (req, res) => {
 
   res.json({ message: 'Call scheduled successfully', jobId: jobId.toHexString() });
 });
-
 
 // Route to fetch scheduled calls
 app.get('/scheduled-calls', async (req, res) => {
