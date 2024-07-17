@@ -154,7 +154,8 @@ app.post('/schedule', async (req, res) => {
     return res.status(400).json({ message: 'Scheduled time must be in the future' });
   }
 
-  const cronTime = `${scheduledDateTime.getMinutes()} ${scheduledDateTime.getHours()} ${scheduledDateTime.getDate()} ${scheduledDateTime.getMonth() + 1} *`;
+  const utcScheduledDateTime = moment.tz(scheduledDateTime, 'UTC').toDate();
+  const cronTime = `${utcScheduledDateTime.getUTCMinutes()} ${utcScheduledDateTime.getUTCHours()} ${utcScheduledDateTime.getUTCDate()} ${utcScheduledDateTime.getUTCMonth() + 1} ? *`
   console.log(`Cron time: ${cronTime}`);
   console.log(`Scheduled time: ${scheduledDateTime.toLocaleString()}`);
 
