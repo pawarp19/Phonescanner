@@ -33,7 +33,7 @@ let db;
 MongoClient.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(client => {
     console.log('Connected to MongoDB');
-    db = client.db('scanner'); // Replace with your database name
+    db = client.db('phonescanner'); // Replace with your database name
   })
   .catch(err => console.error('Error connecting to MongoDB:', err));
 
