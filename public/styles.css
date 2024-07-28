@@ -1,7 +1,8 @@
 /* General styles */
+@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&display=swap');
 body {
-  font-family: 'Roboto', sans-serif;
-  background-color: #f4f4f9;
+  font-family: "Lora", serif;
+  background: linear-gradient(to bottom, #ffffff, #f2f2f2);
   margin: 0;
   padding-top: 70px; /* Ensures content is not hidden under the navbar */
   display: flex;
@@ -211,7 +212,7 @@ label {
 }
 
 .navbar-nav .nav-link {
-  padding: 0.5rem 1rem; /* Adjust padding for better touch target */
+  padding: 0.8rem 1rem; /* Adjust padding for better touch target */
 }
 
 /* Center navbar links on mobile */
