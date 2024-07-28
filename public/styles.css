@@ -77,7 +77,7 @@ header p {
 }
 
 .upload-button {
-  background-color: rgb(232, 190, 19);
+  background-color: rgb(19, 118, 232);
   color: #fff;
   padding: 12px 25px;
   border: none;
@@ -93,7 +93,7 @@ header p {
 }
 
 .upload-button:hover {
-  background-color: rgb(244, 193, 7);
+  background-color: rgb(3, 95, 199);
 }
 
 #loading-spinner {
