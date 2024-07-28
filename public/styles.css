@@ -57,7 +57,7 @@ header p {
 }
 
 .upload-label {
-  background-color: #007bff;
+  background-color: #003366;
   color: #fff;
   padding: 12px 25px;
   border-radius: 5px;
@@ -73,7 +73,7 @@ header p {
 }
 
 .upload-label:hover {
-  background-color: #0056b3;
+  background-color: #022c57;
 }
 
 .upload-button {
@@ -206,6 +206,11 @@ label {
   margin-top: 15px;
   padding: 12px 30px;
   font-size: 1rem;
+  background-color: #003366;
+}
+
+#schedule-button:hover{
+  background-color:#022c57 ;
 }
 /* Ensure navbar links are visible on mobile */
 .navbar-nav {
