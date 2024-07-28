@@ -10,7 +10,7 @@ body {
 }
 
 .navbar-nav .nav-link {
-  padding: 0.5rem 1rem; /* Adjust padding for better touch target */
+  padding: 0.8rem 1rem; /* Adjust padding for better touch target */
 }
 
 .app-container {
