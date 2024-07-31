@@ -7,7 +7,7 @@ const cron = require('node-cron');
 const { MongoClient, ObjectId } = require('mongodb');
 const moment = require('moment-timezone');
 require('dotenv').config();
-const sharp = require('sharp');
+const Jimp = require('jimp');
 const app = express();
 const upload = multer({ storage: multer.memoryStorage() });
 
@@ -49,13 +49,13 @@ app.use((req, res, next) => {
 // Function to extract phone numbers from image using Google Vision API
 const preprocessImage = async (buffer) => {
   try {
-    const processedBuffer = await sharp(buffer)
-      .resize({ width: 800 }) // Resize to a reasonable width
-      .toColourspace('b-w') // Convert to grayscale
-      .normalize() // Improve contrast
-      .toBuffer();
+    const image = await Jimp.read(buffer);
+    image.resize(800, Jimp.AUTO) // Resize to width 800
+         .greyscale()           // Convert to grayscale
+         .contrast(1)           // Increase contrast
+         .writeAsync('output.jpg');
 
-    return processedBuffer;
+    return image.getBufferAsync(Jimp.MIME_JPEG);
   } catch (error) {
     console.error('Error preprocessing image:', error.message);
     throw error;
