@@ -158,10 +158,9 @@ app.post('/schedule', async (req, res) => {
     return res.status(400).json({ message: 'Scheduled time must be in the future' });
   }
 
-  // Adjust scheduledDateTime by subtracting 5 hours and 30 minutes
-  scheduledDateTime.subtract(5, 'hours').subtract(30, 'minutes');
+  // The adjustment of 5 hours and 30 minutes is removed
 
-  // Generate the cron time based on the adjusted local time
+  // Generate the cron time based on the local time
   const cronTime = `${scheduledDateTime.minutes()} ${scheduledDateTime.hours()} ${scheduledDateTime.date()} ${scheduledDateTime.month() + 1} *`;
 
   console.log(`Cron time: ${cronTime}`);
@@ -195,6 +194,7 @@ app.post('/schedule', async (req, res) => {
 
   res.json({ message: 'Call scheduled successfully', jobId: jobId.toHexString() });
 });
+
 
 // Route to fetch scheduled calls
 app.get('/scheduled-calls', async (req, res) => {
