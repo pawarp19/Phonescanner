@@ -7,7 +7,7 @@ const cron = require('node-cron');
 const { MongoClient, ObjectId } = require('mongodb');
 const moment = require('moment-timezone');
 require('dotenv').config();
-
+const sharp = require('sharp');
 const app = express();
 const upload = multer({ storage: multer.memoryStorage() });
 
@@ -47,14 +47,28 @@ app.use((req, res, next) => {
 });
 
 // Function to extract phone numbers from image using Google Vision API
-const googleVisionApi = async (buffer) => {
+const preprocessImage = async (buffer) => {
+  try {
+    const processedBuffer = await sharp(buffer)
+      .resize({ width: 800 }) // Resize to a reasonable width
+      .toColourspace('b-w') // Convert to grayscale
+      .normalize() // Improve contrast
+      .toBuffer();
+
+    return processedBuffer;
+  } catch (error) {
+    console.error('Error preprocessing image:', error.message);
+    throw error;
+  }
+};
+
+// Function to extract text from image using Google Vision API
+const extractTextFromImage = async (buffer) => {
   try {
     const [result] = await visionClient.textDetection({ image: { content: buffer } });
     const detections = result.textAnnotations;
     if (detections.length > 0) {
-      const parsedText = detections[0].description;
-      console.log('Extracted Text:', parsedText);
-      return extractPhoneNumbers(parsedText);
+      return detections[0].description;
     } else {
       throw new Error('No text detected');
     }
@@ -63,6 +77,7 @@ const googleVisionApi = async (buffer) => {
     throw error;
   }
 };
+
 
 // Function to extract phone numbers from text
 const extractPhoneNumbers = (text) => {
@@ -133,7 +148,11 @@ app.post('/upload', upload.single('image'), async (req, res) => {
   }
 
   try {
-    let phoneNumbers = await googleVisionApi(req.file.buffer);
+    const preprocessedImage = await preprocessImage(req.file.buffer);
+    const text = await extractTextFromImage(preprocessedImage);
+    console.log(text);
+    const phoneNumbers = extractPhoneNumbers(text);
+    console.log(phoneNumbers);
     if (phoneNumbers.length === 0) {
       throw new Error('No valid phone numbers found');
     }
