@@ -148,29 +148,27 @@ app.post('/upload', upload.single('image'), async (req, res) => {
 app.post('/schedule', async (req, res) => {
   const { phoneNumbers, date, time, timezone } = req.body;
 
-  // Combine date and time into a single string
+  // Combine date and time into a single string and parse it with timezone
   const dateTimeString = `${date} ${time}`;
-  
-  // Convert the combined date-time string to a moment object with the provided timezone
   const scheduledDateTime = moment.tz(dateTimeString, timezone);
-  
-  if (scheduledDateTime <= moment()) {
+
+  if (scheduledDateTime.isBefore(moment())) {
     return res.status(400).json({ message: 'Scheduled time must be in the future' });
   }
 
-  // Adjust scheduledDateTime by subtracting 5 hours and 30 minutes
-  scheduledDateTime.subtract(5, 'hours').subtract(30, 'minutes');
+  // Convert the scheduledDateTime to UTC for consistent scheduling
+  const utcScheduledDateTime = scheduledDateTime.utc();
 
-  // Generate the cron time based on the adjusted local time
-  const cronTime = `${scheduledDateTime.minutes()} ${scheduledDateTime.hours()} ${scheduledDateTime.date()} ${scheduledDateTime.month() + 1} *`;
+  // Generate the cron time based on UTC time
+  const cronTime = `${utcScheduledDateTime.minutes()} ${utcScheduledDateTime.hours()} ${utcScheduledDateTime.date()} ${utcScheduledDateTime.month() + 1} *`;
 
   console.log(`Cron time: ${cronTime}`);
-  console.log(`Scheduled time: ${scheduledDateTime.toString()}`);
+  console.log(`Scheduled time: ${utcScheduledDateTime.format()}`);
 
   const jobId = new ObjectId();
 
   try {
-    await storeScheduledCalls(jobId, phoneNumbers, scheduledDateTime.toDate());
+    await storeScheduledCalls(jobId, phoneNumbers, utcScheduledDateTime.toDate());
   } catch (error) {
     console.error('Error storing scheduled calls:', error.message);
     return res.status(500).json({ message: 'Failed to store scheduled calls' });
@@ -179,15 +177,15 @@ app.post('/schedule', async (req, res) => {
   cron.schedule(cronTime, async () => {
     try {
       console.log(`Executing cron job at ${new Date().toISOString()}`);
-      const result = await makeCall(phoneNumbers, scheduledDateTime.toDate());
+      const result = await makeCall(phoneNumbers, utcScheduledDateTime.toDate());
       const statusMessage = result.success ? 'Success' : 'Failed';
 
       const scheduledCallsCollection = db.collection('scheduledCalls');
       await scheduledCallsCollection.updateOne(
         { jobId },
-        { $set: { status: statusMessage, message: `Scheduled call at ${moment.tz(scheduledDateTime, timezone).format('LLLL')}: ${statusMessage}` } }
+        { $set: { status: statusMessage, message: `Scheduled call at ${scheduledDateTime.format('LLLL')}: ${statusMessage}` } }
       );
-      console.log(`Scheduled call at ${moment.tz(scheduledDateTime, timezone).format('LLLL')} for ${phoneNumbers.length} phone numbers: ${statusMessage}`);
+      console.log(`Scheduled call at ${scheduledDateTime.format('LLLL')} for ${phoneNumbers.length} phone numbers: ${statusMessage}`);
     } catch (error) {
       console.error('Error executing cron job:', error.message);
     }
@@ -195,6 +193,7 @@ app.post('/schedule', async (req, res) => {
 
   res.json({ message: 'Call scheduled successfully', jobId: jobId.toHexString() });
 });
+
 
 // Route to fetch scheduled calls
 app.get('/scheduled-calls', async (req, res) => {
