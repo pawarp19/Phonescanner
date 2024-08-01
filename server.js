@@ -90,12 +90,24 @@ const storeScheduledCalls = async (jobId, phoneNumbers, scheduledDateTime) => {
 };
 
 // Function to make a call using an external API
-const makeCall = async (phoneNumbers, scheduledDateTime) => {
+const makeCall = async (phoneNumbers, localScheduledDateTimeString, userTimezone) => {
   const apiId = process.env.BULKSMS_API_ID;
   const apiPassword = process.env.BULKSMS_API_PASSWORD;
   const voiceType = '9'; // Use the appropriate voice type for your needs
   const voiceMediasId = '6151'; // Replace with your actual voice media ID
-  const timezoneId = '53'; // Replace with the correct timezone ID
+  const timezoneId = '123'; // Replace with the correct timezone ID
+
+  // Parse the local scheduled date and time in the user's timezone
+  let localScheduledDateTime = moment.tz(localScheduledDateTimeString, userTimezone);
+
+  // Convert the local scheduled date and time to UTC
+  let utcScheduledDateTime = localScheduledDateTime.clone().utc();
+
+  // Use the current UTC time as the scheduled time
+  let currentDateTime = moment().utc();
+
+  // Adjust the scheduled datetime to the current datetime
+  let adjustedScheduledTimestamp = Math.floor(currentDateTime.valueOf() / 1000);
 
   const params = new URLSearchParams();
   params.append('api_id', apiId);
@@ -104,7 +116,7 @@ const makeCall = async (phoneNumbers, scheduledDateTime) => {
   params.append('voice_type', voiceType);
   params.append('voice_medias_id', voiceMediasId);
   params.append('scheduled', '1'); // Scheduled call
-  params.append('scheduled_datetime', scheduledDateTime); // Unix timestamp in seconds
+  params.append('scheduled_datetime', adjustedScheduledTimestamp); // Unix timestamp in seconds
   params.append('timezone_id', timezoneId); // Timezone ID
 
   try {
