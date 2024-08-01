@@ -119,8 +119,8 @@ const makeCall = async (phoneNumbers, scheduledDateTime) => {
   params.append('voice_type', voiceType);
   params.append('voice_medias_id', voiceMediasId);
   params.append('scheduled', '0'); // Scheduled call
-  // params.append('scheduled_datetime', Math.floor(scheduledDateTime.getTime() / 1000)); // Unix timestamp in seconds
-  // params.append('timezone_id', timezoneId); // Timezone ID
+  params.append('scheduled_datetime', Math.floor(scheduledDateTime.getTime() / 1000)); // Unix timestamp in seconds
+  params.append('timezone_id', timezoneId); // Timezone ID
 
   try {
     const response = await axios.post('https://www.bulksmsplans.com/api/send_voice_note', params);
