@@ -97,11 +97,7 @@ const makeCall = async (phoneNumbers, scheduledDateTime) => {
   const voiceMediasId = '6151'; // Replace with your actual voice media ID
   const timezoneId = '53'; // Replace with the correct timezone ID
 
-  // Get the current date and time in GMT
-  const currentDateTimeInGMT = moment().utc().format('YYYY-MM-DDTHH:mm:ss'); // Current time in GMT
-  
-  // Convert the current date and time to Unix timestamp in GMT
-  const currentDateTimeUnix = Math.floor(moment().utc().valueOf() / 1000); // Unix timestamp in seconds
+  const currentDateTime = Math.floor(Date.now() / 1000); // Current time as Unix timestamp
 
   const params = new URLSearchParams();
   params.append('api_id', apiId);
@@ -110,7 +106,7 @@ const makeCall = async (phoneNumbers, scheduledDateTime) => {
   params.append('voice_type', voiceType);
   params.append('voice_medias_id', voiceMediasId);
   params.append('scheduled', '1'); // Scheduled call
-  params.append('scheduled_datetime', currentDateTimeUnix); // Unix timestamp in seconds
+  params.append('scheduled_datetime', currentDateTime); // Unix timestamp in seconds
   params.append('timezone_id', timezoneId); // Timezone ID
 
   try {
