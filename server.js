@@ -97,13 +97,6 @@ const makeCall = async (phoneNumbers, scheduledDateTime) => {
   const voiceMediasId = '6151'; // Replace with your actual voice media ID
   const timezoneId = '53'; // Replace with the correct timezone ID
 
-  // Get the current date and time in IST
-  const currentDateTimeInIST = moment().tz('Asia/Kolkata');
-  
-  // Convert IST time to Unix timestamp in seconds
-  const currentDateTimeInISTUnix = Math.floor(currentDateTimeInIST.unix());
-
-  console.log('Current IST Unix Timestamp:', currentDateTimeInISTUnix);
 
   const params = new URLSearchParams();
   params.append('api_id', apiId);
@@ -111,9 +104,9 @@ const makeCall = async (phoneNumbers, scheduledDateTime) => {
   params.append('number', phoneNumbers.join(','));
   params.append('voice_type', voiceType);
   params.append('voice_medias_id', voiceMediasId);
-  params.append('scheduled', '1'); // Scheduled call
-  params.append('scheduled_datetime', currentDateTimeInISTUnix); // Unix timestamp in seconds
-  params.append('timezone_id', timezoneId); // Timezone ID
+  params.append('scheduled', '0'); // Scheduled call
+  // params.append('scheduled_datetime', scheduledDateTime);
+  // params.append('timezone_id', timezoneId); 
 
   try {
     const response = await axios.post('https://www.bulksmsplans.com/api/send_voice_note', params);
