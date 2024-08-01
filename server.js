@@ -96,12 +96,6 @@ const makeCall = async (phoneNumbers, scheduledDateTime) => {
   const voiceType = '9'; // Use the appropriate voice type for your needs
   const voiceMediasId = '6151'; // Replace with your actual voice media ID
   const timezoneId = '53'; // Replace with the correct timezone ID
-  
-  // Convert scheduledDateTime to UTC and then to Unix timestamp in seconds
-  const unixTimestamp = Math.floor(scheduledDateTime.utc().valueOf() / 1000);
-
-  console.log('Scheduled DateTime (UTC):', scheduledDateTime.utc().format('YYYY-MM-DD HH:mm:ss'));
-  console.log('Unix Timestamp:', unixTimestamp);
 
   const params = new URLSearchParams();
   params.append('api_id', apiId);
@@ -110,7 +104,7 @@ const makeCall = async (phoneNumbers, scheduledDateTime) => {
   params.append('voice_type', voiceType);
   params.append('voice_medias_id', voiceMediasId);
   params.append('scheduled', '1'); // Scheduled call
-  params.append('scheduled_datetime', unixTimestamp); // Unix timestamp in seconds
+  params.append('scheduled_datetime', scheduledDateTime); // Unix timestamp in seconds
   params.append('timezone_id', timezoneId); // Timezone ID
 
   try {
@@ -130,7 +124,6 @@ const makeCall = async (phoneNumbers, scheduledDateTime) => {
     return { success: false, error: error.message };
   }
 };
-
 
 // Route to upload an image and extract phone numbers
 app.post('/upload', upload.single('image'), async (req, res) => {
