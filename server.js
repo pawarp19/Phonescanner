@@ -46,6 +46,19 @@ app.use((req, res, next) => {
   next();
 });
 
+const gm = require('gm').subClass({ imageMagick: true });
+
+const preprocessImage = (buffer) => {
+  return new Promise((resolve, reject) => {
+    gm(buffer)
+      .resize(800) // Example resize operation, adjust as needed
+      .toBuffer('PNG', (err, buffer) => {
+        if (err) return reject(err);
+        resolve(buffer);
+      });
+  });
+};
+
 // Function to extract phone numbers from image using Google Vision API
 const googleVisionApi = async (buffer) => {
   try {
@@ -134,7 +147,11 @@ app.post('/upload', upload.single('image'), async (req, res) => {
   }
 
   try {
-    let phoneNumbers = await googleVisionApi(req.file.buffer);
+    // Preprocess image if needed
+    const processedBuffer = await preprocessImage(req.file.buffer);
+
+    // Pass the processed image to Google Vision API
+    let phoneNumbers = await googleVisionApi(processedBuffer);
     if (phoneNumbers.length === 0) {
       throw new Error('No valid phone numbers found');
     }
