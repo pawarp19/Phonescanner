@@ -107,7 +107,7 @@ const makeCall = async (phoneNumbers, scheduledDateTime) => {
   const apiId = process.env.BULKSMS_API_ID;
   const apiPassword = process.env.BULKSMS_API_PASSWORD;
   const voiceType = '9'; // Use the appropriate voice type for your needs
-  const voiceMediasId = '6151'; // Replace with your actual voice media ID
+  const voiceMediasId = '6041'; // Replace with your actual voice media ID
   const timezoneId = '53'; // Replace with the correct timezone ID
 
 
